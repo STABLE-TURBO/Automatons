@@ -28,7 +28,7 @@ class DailyScheduler:
         Check for missed posts from previous days and attempt to post them.
         This handles cases where the computer was shut down during posting time.
         """
-        from datetime import datetime, timedelta
+        from datetime import timedelta
         import os
 
         logger.info("🔍 Checking for missed posts from previous days...")

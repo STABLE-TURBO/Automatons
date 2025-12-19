@@ -9,7 +9,6 @@ Run this after installing ngrok and getting your authtoken.
 import subprocess
 import time
 import requests
-import json
 import os
 
 def check_ngrok_installation():
@@ -76,7 +75,7 @@ def start_flask_app():
                 try:
                     error_text = response.text
                     print(f"Response: {error_text}")
-                except:
+                except Exception:
                     pass
                 return None
         except requests.RequestException as e:
@@ -118,10 +117,10 @@ def start_ngrok_tunnel():
                 for tunnel in tunnels:
                     if tunnel['proto'] == 'https':
                         url = tunnel['public_url']
-                        print(f"\n🎉 ngrok tunnel active!")
+                        print("\n🎉 ngrok tunnel active!")
                         print(f"🌐 Public URL: {url}")
                         print(f"🎯 Webhook URL: {url}/webhook")
-                        print(f"\n📋 Copy this webhook URL to your GitHub webhook settings:")
+                        print("\n📋 Copy this webhook URL to your GitHub webhook settings:")
                         print(f"   {url}/webhook")
                         return url, process
         except requests.RequestException:

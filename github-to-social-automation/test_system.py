@@ -6,7 +6,6 @@ This script tests each module individually and provides detailed output
 to make the system less of a blackbox.
 """
 
-import sys
 import traceback
 
 def test_config():
@@ -88,7 +87,7 @@ def test_ai_processor():
 
         # Check if API key is configured
         try:
-            client = ai_processor._get_client()
+            ai_processor._get_client()
             print("   ✅ Groq client initialized successfully")
 
             # Test humanization
@@ -250,7 +249,6 @@ def test_webhook_flow():
 
     try:
         from app import app
-        from github_handler import GitHubHandler
         import hmac
         import hashlib
         from config import Config

@@ -79,7 +79,7 @@ class LinkedInPoster:
                 logger.info("Attempting to use organization URN for posting...")
                 # This would require additional setup, for now return a placeholder
                 raise ValueError("Unable to get person URN - token may lack required permissions")
-            except:
+            except Exception:
                 raise ValueError(f"Failed to get LinkedIn person URN: {e}")
 
     def post_content(self, content: str) -> bool:
@@ -216,20 +216,20 @@ class LinkedInPoster:
         # Create review file
         review_file = f"review_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
         with open(review_file, 'w', encoding='utf-8') as f:
-            f.write(f"LinkedIn Post Review\n")
+            f.write("LinkedIn Post Review\n")
             f.write(f"Generated at: {datetime.now().isoformat()}\n")
             f.write(f"Content length: {len(content)} characters\n")
             f.write(f"Posting method: {'Pipedream' if Config.USE_PIPEDREAM else 'Direct LinkedIn'}\n")
             f.write(f"\n{'='*50}\n")
             f.write(f"{content}\n")
             f.write(f"{'='*50}\n")
-            f.write(f"\nTo approve this post, edit this file and change 'APPROVE=false' to 'APPROVE=true'\n")
-            f.write(f"APPROVE=false\n")
+            f.write("\nTo approve this post, edit this file and change 'APPROVE=false' to 'APPROVE=true'\n")
+            f.write("APPROVE=false\n")
 
-        logger.warning(f"⚠️  POST REVIEW REQUIRED!")
+        logger.warning("⚠️  POST REVIEW REQUIRED!")
         logger.warning(f"📄 Review file created: {review_file}")
-        logger.warning(f"📖 Please review the content and set APPROVE=true to post")
-        logger.warning(f"🔄 The system will check for approval every 5 minutes")
+        logger.warning("📖 Please review the content and set APPROVE=true to post")
+        logger.warning("🔄 The system will check for approval every 5 minutes")
 
         # Wait for approval
         import time
@@ -280,7 +280,7 @@ class LinkedInPoster:
                 logger.error(f"Review file {review_file} not found")
                 return False
 
-        logger.warning(f"⏰ Review timeout reached. Post not approved within 1 hour.")
+        logger.warning("⏰ Review timeout reached. Post not approved within 1 hour.")
         return False
 
 # Global instance for easy importing
