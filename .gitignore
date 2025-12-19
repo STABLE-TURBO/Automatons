@@ -1,0 +1,32 @@
+# Environment variables (contains sensitive API keys)
+.env
+.env.local
+.env.*.local
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Event data files
+events_*.json
+posted_events_*.json
+
+# Temporary files
+*.tmp
+*.temp

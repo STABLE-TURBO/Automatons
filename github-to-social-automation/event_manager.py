@@ -27,23 +27,26 @@ class EventManager:
         Returns:
             str: Summary of the event
         """
+        # Extract repository name from payload
+        repo_info = payload.get('repository', {})
+        repo_name = repo_info.get('full_name') or repo_info.get('name') or 'unknown-repo'
+
         if event_type == 'push':
             commits = payload.get('commits', [])
             branch = payload.get('ref', '').replace('refs/heads/', '')
-            return f"Pushed {len(commits)} commits to {branch}"
+            return f"Pushed {len(commits)} commits to {branch} in {repo_name}"
         elif event_type == 'release':
             release = payload.get('release', {})
             tag = release.get('tag_name', 'unknown')
-            return f"Released version {tag}"
+            return f"Released version {tag} in {repo_name}"
         elif event_type == 'repository':
             action = payload.get('action', 'updated')
-            repo_name = payload.get('repository', {}).get('name', 'repository')
             return f"Repository {action}: {repo_name}"
         elif event_type == 'organization':
             action = payload.get('action', 'updated')
             return f"Organization {action}"
         else:
-            return f"{event_type} event occurred"
+            return f"{event_type} event occurred in {repo_name}"
 
     @staticmethod
     def save_event(event_type: str, payload: Dict[str, Any]) -> None:

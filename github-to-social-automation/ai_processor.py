@@ -95,13 +95,23 @@ Humanized version:"""
             for event in events
         ])
 
-        prompt = f"""Create a concise, engaging LinkedIn post summarizing today's GitHub activity.
-Focus on the key achievements and maintain a professional yet approachable tone.
+        prompt = f"""Generate a factual summary of GitHub events with commit details.
 
-Today's GitHub Events:
+Input:
 {events_text}
 
-Daily Summary Post:"""
+Output format:
+- List specific actions performed with details
+- Include actual commit messages and changes
+- Use format: "X commits: [commit details]. PR #N: [PR title]. vX.X: [release notes]. Issue #N: [issue title]."
+- No hashtags
+- No conversational language
+- Technical details only
+- Under 250 characters
+
+Example: "5 commits: updated AI models, fixed API calls, added error handling. PR #42: user authentication feature. v2.1.0: new performance improvements. Issue #15: resolved memory leak."
+
+Summary:"""
 
         try:
             client = self._get_client()
@@ -112,8 +122,8 @@ Daily Summary Post:"""
                 temperature=0.8
             )
             raw_summary = response.choices[0].message.content.strip()
-            # Humanize the summary
-            return self.generate_humanized_content(raw_summary)
+            # Return raw factual summary (no humanization for technical posts)
+            return raw_summary
         except Exception as e:
             logger.error(f"Error generating daily summary: {e}")
             # Fallback summary
