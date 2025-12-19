@@ -66,6 +66,48 @@ class DailyScheduler:
             elif os.path.exists(posted_file):
                 logger.debug(f"✅ {check_date} already posted")
 
+    def _load_and_validate_events(self) -> list:
+        """Load and validate today's events."""
+        events = EventManager.load_events()
+        logger.info(f"📊 Found {len(events)} events to summarize")
+
+        if not events:
+            logger.info("📭 No events to summarize for today")
+            return []
+
+        # Log event details
+        event_types = {}
+        for event in events:
+            event_type = event.get('type', 'unknown')
+            event_types[event_type] = event_types.get(event_type, 0) + 1
+        logger.info(f"📈 Event breakdown: {event_types}")
+
+        return events
+
+    def _generate_ai_summary(self, events: list) -> str:
+        """Generate AI summary for events."""
+        logger.info("🤖 Generating AI summary...")
+        summary_content = ai_processor.generate_daily_summary(events)
+        logger.info("✅ AI summary generated successfully")
+        logger.info(f"📝 Summary preview: {summary_content[:150]}...")
+        return summary_content
+
+    def _post_summary(self, summary_content: str, events: list) -> bool:
+        """Post the summary using configured method."""
+        posting_method = "Pipedream" if Config.USE_PIPEDREAM else "LinkedIn"
+        logger.info(f"🔗 Posting to {posting_method}...")
+        return linkedin_poster.review_and_post(summary_content, events)
+
+    def _handle_posting_result(self, success: bool, events_count: int) -> None:
+        """Handle the result of posting attempt."""
+        if success:
+            EventManager.archive_events()
+            logger.info("🎉 Daily summary posted and events archived successfully!")
+            logger.info(f"📊 Summary: {events_count} events processed, posted to LinkedIn")
+        else:
+            logger.error("❌ Failed to post daily summary to LinkedIn")
+            logger.warning("💡 Events file not archived - will retry tomorrow")
+
     def post_daily_summary(self) -> None:
         """
         Generate and post daily summary of GitHub events.
@@ -77,40 +119,19 @@ class DailyScheduler:
         self.check_for_missed_posts()
 
         try:
-            # Load today's events
-            events = EventManager.load_events()
-            logger.info(f"📊 Found {len(events)} events to summarize")
-
+            # Load and validate events
+            events = self._load_and_validate_events()
             if not events:
-                logger.info("📭 No events to summarize for today")
                 return
 
-            # Log event details
-            event_types = {}
-            for event in events:
-                event_type = event.get('type', 'unknown')
-                event_types[event_type] = event_types.get(event_type, 0) + 1
-            logger.info(f"📈 Event breakdown: {event_types}")
-
             # Generate AI summary
-            logger.info("🤖 Generating AI summary...")
-            summary_content = ai_processor.generate_daily_summary(events)
-            logger.info("✅ AI summary generated successfully")
-            logger.info(f"📝 Summary preview: {summary_content[:150]}...")
+            summary_content = self._generate_ai_summary(events)
 
-            # Post to LinkedIn or Pipedream (with review if enabled)
-            posting_method = "Pipedream" if Config.USE_PIPEDREAM else "LinkedIn"
-            logger.info(f"🔗 Posting to {posting_method}...")
-            success = linkedin_poster.review_and_post(summary_content, events)
+            # Post summary
+            success = self._post_summary(summary_content, events)
 
-            if success:
-                # Archive the events file
-                EventManager.archive_events()
-                logger.info("🎉 Daily summary posted and events archived successfully!")
-                logger.info(f"📊 Summary: {len(events)} events processed, posted to LinkedIn")
-            else:
-                logger.error("❌ Failed to post daily summary to LinkedIn")
-                logger.warning("💡 Events file not archived - will retry tomorrow")
+            # Handle result
+            self._handle_posting_result(success, len(events))
 
         except Exception as e:
             logger.error(f"💥 Error in daily summary process: {e}")
