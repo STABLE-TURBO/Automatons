@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""
+Fix LinkedIn Redirect URI Script
+
+This script helps you update the redirect URI in the OAuth helper to match your LinkedIn app.
+"""
+
+def main():
+    print("🔧 LinkedIn Redirect URI Fix")
+    print("=" * 40)
+
+    print("The error 'redirect_uri does not match the registered value' means")
+    print("the redirect URI in the oauth helper doesn't match your LinkedIn app settings.")
+    print()
+
+    print("📋 How to fix:")
+    print()
+    print("1. Go to https://developer.linkedin.com/")
+    print("2. Select your app (the one with Client ID: 77zx8dmraj2mcd)")
+    print("3. Go to the 'Auth' tab")
+    print("4. Look at 'Redirect URLs' section")
+    print("5. Copy one of the registered redirect URLs")
+    print()
+
+    redirect_uri = input("Paste the exact redirect URL from your LinkedIn app: ").strip()
+
+    if not redirect_uri:
+        print("❌ No redirect URI provided.")
+        return
+
+    # Update the oauth helper script
+    with open('linkedin_oauth_helper.py', 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Replace the redirect URI
+    old_line = "REDIRECT_URI = 'http://localhost:8000/callback'  # Update this if different in your app"
+    new_line = f"REDIRECT_URI = '{redirect_uri}'  # Updated to match LinkedIn app"
+
+    if old_line in content:
+        content = content.replace(old_line, new_line)
+
+        with open('linkedin_oauth_helper.py', 'w', encoding='utf-8') as f:
+            f.write(content)
+
+        print(f"\n✅ Updated redirect URI to: {redirect_uri}")
+        print("\n🎯 Now run:")
+        print("python linkedin_oauth_helper.py")
+    else:
+        print("❌ Could not find the redirect URI line in the script.")
+
+if __name__ == "__main__":
+    main()

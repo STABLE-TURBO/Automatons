@@ -28,6 +28,10 @@ wheels/
 *.log
 logs/
 
+# Event files
+events_*.json
+posted_events_*.json
+
 # IDE
 .vscode/
 .idea/
